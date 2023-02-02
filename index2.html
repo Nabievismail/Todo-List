@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            background-color: rgb(33, 88, 116);
+            color: white;
+        }
+    .container{
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 15px;
+        display: flex;  
+        flex-direction: column;
+        align-items: center;
+    }
+    form{
+        display: flex;
+    }
+    form input{
+        padding: 8px;
+    }
+    form button{
+        background-color: aqua;
+        color: white;
+        outline: none;
+        border: none;
+        cursor: pointer;
+    }
+    .list {
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .list-item {
+        display: flex;
+        justify-content: space-between;
+        width: 400px;
+        background-color: #6c5ce7;
+        padding: 8px 10px;
+    }
+    .list-item button{
+        background-color: crimson;
+        outline: none;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        color: white;
+        
+    }
+    .list-item button:active{
+        background-color: #d63031;
+    }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Todo List 0</h1>
+        <h2 class="done">vypolnennyh zadachi 0</h2>
+        <h2 class="done">ne vypolnennyh zadachi 0</h2>
+        <form id="form" action="">
+            <input id="input" placeholder="napishite zadachu...?" type="text">
+            <button type="submit">dobavit</button>
+        </form>
+        <ul id="list" class="list">
+          </ul>
+    </div>
+    <script>
+
+        let title = document.getElementById('title')
+        let input = document.getElementById('input')
+        let list = document.getElementById('list')
+        let form = document.getElementById('form')
+        let done = document.getElementsByClassName('done')
+        let tasks = JSON.parse(localStorage.getItem('todo')) || [];
+        
+        // let tasks = [
+        //     {id: 1, todo: 'Изучать программирования', completed: false },
+        //     {id: 2, todo: 'Учить английский язык', completed: false },
+        //     {id: 3, todo: 'domashnaya', completed: false }
+        // ];
+        const filterTasks = () =>{
+            const completedTask = tasks.filter(elem => elem.completed === true)
+            const isActiveTask = tasks.filter(elem => elem.completed === false )
+            const newArr =[...isActiveTask, ...completedTask]
+            tasks = newArr
+                }
+
+                const updateTask = ()=>{
+                    localStorage.setItem('todo',JSON.stringify(tasks))
+                }
+
+            
+        const htmlElements = () => {
+            const completedTask = tasks.filter(elem => elem.completed === true)
+            const isActiveTask = tasks.filter(elem => elem.completed === false )
+            list.innerHTML = ''
+            filterTasks()
+            title.innerText =`Todo List: ${tasks.length}`
+            done[0].innerText = `vypolnennyh zadachi ${completedTask.length}`
+            done[1].innerText = `Ne vypolnennyh zadachi ${isActiveTask.length}`
+            tasks.map((item, index) => {
+                return list.innerHTML += `
+                <li 
+                style='background-color:${item.completed ? 'black': '#6c5ce7'}'
+                class="list-item">
+                <div class="text">
+                <input onclick='changeCompleted(${index})' 
+                ${item.completed ? 'checked' : null} type="checkbox">
+                <span style='text-decoration: ${item.completed ? 'line-through' : 'none'}'> 
+                    ${item.todo}</span>
+                </div>
+                <div class="btn">
+                <button 
+                style='display: ${item.completed ? 'block': 'none'}'
+                onclick='deleteItem(${ item.id})'>delete</button>
+                    </div>
+            </li>
+                `
+            })
+        }
+        const changeCompleted = (index) => {
+            tasks[index].completed = !tasks[index].completed
+            htmlElements()
+            updateTask()
+        }
+
+        htmlElements()
+        const deleteItem = (id) => {
+            console.log(id)
+            // tasks.splice(index , 1)
+            tasks = tasks.filter(item => item.id !== id)
+            htmlElements()
+            updateTask()
+                }
+        const handleSubmit = (e) => {
+            e.preventDefault()
+            if(input.value){
+                const newItem = {
+                    id: Date.now(),
+                    todo: input.value,
+                    completed:false
+                }
+                tasks = [...tasks, newItem]
+                htmlElements()
+                updateTask()
+                input.value = ''
+            }else{
+                alert('error')
+            }
+        }
+        form.onsubmit = handleSubmit;
+    </script>
+</body>
+</html>
